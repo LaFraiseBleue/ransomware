@@ -4,7 +4,7 @@ from django.contrib import admin
 from .models import SimpleDatas
 
 class SimpleDatasAdmin(admin.ModelAdmin):
-    list_display = ('client_adress', 'host','uuid')
+    list_display = ('client_adress', 'host','uuid', 'paid')
 
 
 admin.site.register(SimpleDatas, SimpleDatasAdmin)
